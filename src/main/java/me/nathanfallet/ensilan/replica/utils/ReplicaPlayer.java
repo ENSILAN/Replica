@@ -1,10 +1,17 @@
 package me.nathanfallet.ensilan.replica.utils;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
+import me.nathanfallet.ensilan.core.Core;
+
 public class ReplicaPlayer {
+
+	// Local data
 
 	private UUID uuid;
 	private int currentGame;
@@ -12,6 +19,13 @@ public class ReplicaPlayer {
 	private boolean playing;
 	private boolean finish;
 	private int plot;
+
+	// Cached data
+
+	private Long score;
+	private Long victories;
+
+	// Methods
 
 	public ReplicaPlayer(Player p) {
 		uuid = p.getUniqueId();
@@ -64,6 +78,62 @@ public class ReplicaPlayer {
 
 	public void setPlot(int plot) {
 		this.plot = plot;
+	}
+
+	public Long getScore() {
+		try {
+			PreparedStatement state = Core.getInstance().getConnection().prepareStatement("SELECT score FROM replica_players WHERE uuid = ?");
+			state.setString(1, uuid.toString());
+			ResultSet result = state.executeQuery();
+			result.next();
+			score = result.getLong("score");
+			result.close();
+			state.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return score;
+	}
+	
+	public void setScore(Long newScore) {
+		try {
+			PreparedStatement state = Core.getInstance().getConnection().prepareStatement("UPDATE replica_players SET score = ? WHERE uuid = ?");
+			state.setDouble(1, newScore);
+			state.setString(2, uuid.toString());
+			state.executeUpdate();
+			state.close();
+			score = newScore;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Long getVictories() {
+		try {
+			PreparedStatement state = Core.getInstance().getConnection().prepareStatement("SELECT victories FROM replica_players WHERE uuid = ?");
+			state.setString(1, uuid.toString());
+			ResultSet result = state.executeQuery();
+			result.next();
+			victories = result.getLong("victories");
+			result.close();
+			state.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return victories;
+	}
+	
+	public void setVictories(Long newVictories) {
+		try {
+			PreparedStatement state = Core.getInstance().getConnection().prepareStatement("UPDATE replica_players SET victories = ? WHERE uuid = ?");
+			state.setDouble(1, newVictories);
+			state.setString(2, uuid.toString());
+			state.executeUpdate();
+			state.close();
+			victories = newVictories;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

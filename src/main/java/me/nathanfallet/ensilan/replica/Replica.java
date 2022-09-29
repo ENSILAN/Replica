@@ -13,16 +13,19 @@ import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.GameRule;
+import org.bukkit.Location;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.nathanfallet.ensilan.core.Core;
 import me.nathanfallet.ensilan.core.interfaces.LeaderboardGenerator;
 import me.nathanfallet.ensilan.core.interfaces.ScoreboardGenerator;
+import me.nathanfallet.ensilan.core.interfaces.WorldProtectionRule;
 import me.nathanfallet.ensilan.core.models.EnsilanPlayer;
 import me.nathanfallet.ensilan.replica.commands.Cmd;
 import me.nathanfallet.ensilan.replica.events.BlockBreak;
@@ -40,6 +43,8 @@ import me.nathanfallet.ensilan.replica.utils.ReplicaPlayer;
 public class Replica extends JavaPlugin {
 
 	public static final int DISTANCE = 5;
+	public static final long SCORE = 10;
+	public static final long MONEY = 10;
 	private static Replica instance;
 
 	public static Replica getInstance() {
@@ -159,6 +164,24 @@ public class Replica extends JavaPlugin {
 		// Register command
 		getCommand("replica").setExecutor(new Cmd());
 
+		// World protection rules
+		Core.getInstance().getWorldProtectionRules().add(new WorldProtectionRule() {
+			@Override
+			public boolean isAllowedInProtectedLocation(Player player, EnsilanPlayer ep, Location location, Event event) {
+				ReplicaPlayer zp = Replica.getInstance().getPlayer(player.getUniqueId());
+				return zp.isBuildmode() || (
+					location.getBlockY() == 64 &&
+					location.getBlockZ() >= 0 &&
+					location.getBlockZ() <= 320 &&
+					location.getBlock().getType().toString().endsWith("_TERRACOTTA")
+				);
+			}
+			@Override
+			public boolean isProtected(Location location) {
+				return location.getWorld().getName().equals("Replica");
+			}
+		});
+
 		// Initialize leaderboards
 		Core.getInstance().getLeaderboardGenerators().put("replica_score", new LeaderboardGenerator() {
 			@Override
@@ -193,7 +216,7 @@ public class Replica extends JavaPlugin {
 
 			@Override
 			public String getTitle() {
-				return "Classement des joueurs selon leur score au Replica";
+				return "Score au Replica";
 			}
 		});
 		Core.getInstance().getLeaderboardGenerators().put("replica_victories", new LeaderboardGenerator() {
@@ -229,7 +252,7 @@ public class Replica extends JavaPlugin {
 
 			@Override
 			public String getTitle() {
-				return "Classement des joueurs selon leur nombre de victoires au Replica";
+				return "Victoires au Replica";
 			}
 		});
 

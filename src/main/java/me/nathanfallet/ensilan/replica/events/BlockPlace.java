@@ -14,26 +14,10 @@ import me.nathanfallet.ensilan.replica.utils.ReplicaPlayer;
 
 public class BlockPlace implements Listener {
 
-	@EventHandler(ignoreCancelled = true)
+	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent e) {
 		if (e.getBlock().getWorld().getName().equals("Replica")) {
 			ReplicaPlayer zp = Replica.getInstance().getPlayer(e.getPlayer().getUniqueId());
-			if (zp != null && zp.isBuildmode()) {
-				e.setCancelled(false);
-				return;
-			}
-			if (e.getBlock().getLocation().getBlockY() != 64) {
-				e.setCancelled(true);
-				return;
-			}
-			if (e.getBlock().getLocation().getBlockZ() < 0 || e.getBlock().getLocation().getBlockZ() > 320) {
-				e.setCancelled(true);
-				return;
-			}
-			if (!e.getBlock().getType().toString().endsWith("_TERRACOTTA")) {
-				e.setCancelled(true);
-				return;
-			}
 			int z = e.getBlock().getChunk().getZ(), col = 0;
 			while (z >= 2) {
 				z -= 2;
@@ -43,19 +27,14 @@ public class BlockPlace implements Listener {
 			for (Game g : Replica.getInstance().getGames()) {
 				for (UUID c : g.getPlayers()) {
 					if (e.getPlayer().getUniqueId().equals(c)) {
-						if (g.getState().equals(GameState.IN_GAME)) {
-							if (zp.getPlot() == col) {
-								e.setCancelled(false);
-								if (g.isCompletingPlot(col)) {
-									g.breakPlot(col);
-									e.getPlayer().getInventory().clear();
-									e.getPlayer().updateInventory();
-									e.getPlayer().setGameMode(GameMode.SPECTATOR);
-									zp.setFinish(true);
-									g.mainHandler();
-								}
-							} else {
-								e.setCancelled(true);
+						if (g.getState().equals(GameState.IN_GAME) && zp.getPlot() == col) {
+							if (g.isCompletingPlot(col)) {
+								g.breakPlot(col);
+								e.getPlayer().getInventory().clear();
+								e.getPlayer().updateInventory();
+								e.getPlayer().setGameMode(GameMode.SPECTATOR);
+								zp.setFinish(true);
+								g.mainHandler();
 							}
 						} else {
 							e.setCancelled(true);
@@ -64,7 +43,7 @@ public class BlockPlace implements Listener {
 					}
 				}
 			}
-			e.setCancelled(true);
+			e.setCancelled(!zp.isBuildmode());
 		}
 	}
 

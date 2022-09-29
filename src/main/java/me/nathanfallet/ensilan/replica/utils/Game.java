@@ -74,11 +74,13 @@ public class Game extends AbstractGame {
 				p.setGameMode(GameMode.SPECTATOR);
 				p.sendMessage("§aTu as gagné la partie !");
 
-				// TODO: Handle reward using Core actions
-				for (String cmd : Replica.getInstance().getConfig().getStringList("reward-commands")) {
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-							cmd.replaceAll("%player%", p.getName()).replaceAll("%pseudo%", p.getName()));
-				}
+				EnsilanPlayer ep = Core.getInstance().getPlayer(p.getUniqueId());
+				ReplicaPlayer zp = Replica.getInstance().getPlayer(p.getUniqueId());
+				ep.setVictories(ep.getVictories() + 1);
+				ep.setScore(ep.getScore() + Replica.SCORE);
+				ep.setMoney(ep.getMoney() + Replica.MONEY);
+				zp.setVictories(zp.getVictories() + 1);
+				zp.setScore(zp.getScore() + Replica.SCORE);
 			}
 			currentCountValue = 0;
 			loadPlots();
