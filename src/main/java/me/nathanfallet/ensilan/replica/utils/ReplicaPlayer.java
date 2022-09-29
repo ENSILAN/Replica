@@ -34,6 +34,37 @@ public class ReplicaPlayer {
 		setPlaying(false);
 		setFinish(false);
 		setPlot(0);
+
+		// Update player data
+        try {
+            // Database fetch/update/insert
+            PreparedStatement fetch = Core.getInstance().getConnection()
+                .prepareStatement("SELECT score, victories FROM replica_players WHERE uuid = ?");
+            fetch.setString(1, uuid.toString());
+			ResultSet result = fetch.executeQuery();
+            if (result.next()) {
+                // Save data to cache
+                score = result.getLong("score");
+                victories = result.getLong("victories");
+            } else {
+                // Save data to cache
+                score = 0L;
+				victories = 0L;
+
+                // Insert
+                PreparedStatement insert = Core.getInstance().getConnection()
+                    .prepareStatement("INSERT INTO replica_players (uuid) VALUES(?)");
+                insert.setString(1, uuid.toString());
+                insert.executeUpdate();
+                insert.close();
+            }
+            result.close();
+            fetch.close();
+        } catch (Exception e) {
+            // Error, disconnect player
+            e.printStackTrace();
+            p.kickPlayer("Erreur lors de la vérification de votre identité dans la base de données !");
+        }
 	}
 
 	public UUID getUuid() {

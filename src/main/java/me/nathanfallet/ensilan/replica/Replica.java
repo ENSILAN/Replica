@@ -19,6 +19,8 @@ import org.bukkit.WorldType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -163,24 +165,6 @@ public class Replica extends JavaPlugin {
 
 		// Register command
 		getCommand("replica").setExecutor(new Cmd());
-
-		// World protection rules
-		Core.getInstance().getWorldProtectionRules().add(new WorldProtectionRule() {
-			@Override
-			public boolean isAllowedInProtectedLocation(Player player, EnsilanPlayer ep, Location location, Event event) {
-				ReplicaPlayer zp = Replica.getInstance().getPlayer(player.getUniqueId());
-				return zp.isBuildmode() || (
-					location.getBlockY() == 64 &&
-					location.getBlockZ() >= 0 &&
-					location.getBlockZ() <= 320 &&
-					location.getBlock().getType().toString().endsWith("_TERRACOTTA")
-				);
-			}
-			@Override
-			public boolean isProtected(Location location) {
-				return location.getWorld().getName().equals("Replica");
-			}
-		});
 
 		// Initialize leaderboards
 		Core.getInstance().getLeaderboardGenerators().put("replica_score", new LeaderboardGenerator() {
