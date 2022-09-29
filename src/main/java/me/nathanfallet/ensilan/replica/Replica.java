@@ -194,7 +194,7 @@ public class Replica extends JavaPlugin {
 					ResultSet result = state.executeQuery(
 							"SELECT name, replica_players.score FROM replica_players " +
 									"INNER JOIN players ON replica_players.uuid = players.uuid " +
-									"WHERE replica_players.score > 0" +
+									"WHERE replica_players.score > 0 " +
 									"ORDER BY replica_players.score DESC " +
 									"LIMIT " + limit);
 
@@ -230,7 +230,7 @@ public class Replica extends JavaPlugin {
 					ResultSet result = state.executeQuery(
 							"SELECT name, replica_players.victories FROM replica_players " +
 									"INNER JOIN players ON replica_players.uuid = players.uuid " +
-									"WHERE replica_players.victories > 0" +
+									"WHERE replica_players.victories > 0 " +
 									"ORDER BY replica_players.victories DESC " +
 									"LIMIT " + limit);
 
