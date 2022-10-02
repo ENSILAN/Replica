@@ -1,7 +1,5 @@
 package me.nathanfallet.ensilan.replica.events;
 
-import java.util.UUID;
-
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,22 +39,20 @@ public class BlockPlace implements Listener {
 			}
 			col++;
 			for (Game g : Replica.getInstance().getGames()) {
-				for (UUID c : g.getPlayers()) {
-					if (e.getPlayer().getUniqueId().equals(c)) {
-						if (g.getState().equals(GameState.IN_GAME) && zp.getPlot() == col) {
-							if (g.isCompletingPlot(col)) {
-								g.breakPlot(col);
-								e.getPlayer().getInventory().clear();
-								e.getPlayer().updateInventory();
-								e.getPlayer().setGameMode(GameMode.SPECTATOR);
-								zp.setFinish(true);
-								g.mainHandler();
-							}
-						} else {
-							e.setCancelled(true);
+				if (g.getGameNumber() == zp.getCurrentGame()) {
+					if (g.getState().equals(GameState.IN_GAME) && zp.getPlot() == col) {
+						if (g.isCompletingPlot(col)) {
+							g.breakPlot(col);
+							e.getPlayer().getInventory().clear();
+							e.getPlayer().updateInventory();
+							e.getPlayer().setGameMode(GameMode.SPECTATOR);
+							zp.setFinish(true);
+							g.mainHandler();
 						}
-						return;
+					} else {
+						e.setCancelled(true);
 					}
+					return;
 				}
 			}
 			e.setCancelled(true);
